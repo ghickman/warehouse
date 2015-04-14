@@ -10,9 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
+from pyramid.httpexceptions import (HTTPFound, HTTPMovedPermanently,
+                                    HTTPSeeOther)
 from pyramid.security import remember, forget
-from pyramid.view import view_config
+from pyramid.view import forbidden_view_config, view_config
 
 from warehouse.accounts.forms import LoginForm
 from warehouse.accounts.interfaces import ILoginService
@@ -140,3 +141,9 @@ def logout(request):
         return HTTPSeeOther("/", headers=dict(headers))
 
     return {}
+
+
+@forbidden_view_config()
+def forbidden(request):
+    next_url = '?next={}'.format(request.current_route_path())
+    return HTTPFound(request.route_url('accounts.login') + next_url)
